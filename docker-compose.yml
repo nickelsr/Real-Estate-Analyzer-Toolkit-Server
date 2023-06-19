@@ -1,0 +1,9 @@
+version: "3"
+services:
+  server:
+    image: nickelwickelsr/real-estate-analyzer-toolkit-server-prod
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "4000:4000"

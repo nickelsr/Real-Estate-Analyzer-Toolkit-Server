@@ -1,0 +1,29 @@
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    ECR_URI: "133198835912.dkr.ecr.us-west-1.amazonaws.com"
+    IMAGE_NAME: "reatapi"
+    REGION: "us-west-1"
+
+phases:
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_URI}
+      - aws ecr create-repository --repository-name ${IMAGE_NAME} --region ${REGION} || true
+  build:
+    commands:
+      - "echo Build started on `date`"
+      - "echo Building the Docker image..."
+      - "docker build -t ${IMAGE_NAME} ."
+      - "docker tag ${IMAGE_NAME}:latest ${ECR_URI}/${IMAGE_NAME}:latest"
+  post_build:
+    commands:
+      - "echo Build completed on `date`"
+      - "echo Pushing the Docker image..."
+      - "docker push ${ECR_URI}/${IMAGE_NAME}:latest"
+      - printf '[{"name":"node","imageUri":"%s"}]' ${ECR_URI}/${IMAGE_NAME}:latest > imagedefinitions.json
+artifacts:
+  files:
+    - imagedefinitions.json

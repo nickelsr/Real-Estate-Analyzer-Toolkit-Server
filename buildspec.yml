@@ -23,7 +23,7 @@ phases:
       - "echo Build completed on `date`"
       - "echo Pushing the Docker image..."
       - "docker push ${ECR_URI}/${REPOSITORY_NAME}:latest"
-      - printf '[{"name":"node","imageUri":"%s"}]' ${ECR_URI}/${REPOSITORY_NAME}:latest > imagedefinitions.json
+      - printf '[{"name":"real-estate-analyzer-toolkit-repository","imageUri":"%s"}]' ${ECR_URI}/${REPOSITORY_NAME}:latest > imagedefinitions.json
 artifacts:
   files:
     - imagedefinitions.json

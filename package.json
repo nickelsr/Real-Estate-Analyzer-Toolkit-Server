@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Server for a Real Estate Investment Toolkit",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.production.json && resolve-tspaths",
-    "dev": "ts-node-dev -r tsconfig-paths/register -r dotenv/config src/app.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/app.js"
   },
@@ -15,7 +16,6 @@
     "@aws-sdk/client-ssm": "^3.360.0",
     "bcrypt": "^5.1.0",
     "cookie-parser": "^1.4.6",
-    "dotenv": "^16.1.4",
     "express": "^4.18.2",
     "express-validator": "^7.0.1",
     "pg": "^8.11.0",

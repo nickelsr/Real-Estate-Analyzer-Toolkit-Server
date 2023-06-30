@@ -1,24 +1,33 @@
-import { Sequelize } from "sequelize";
+import { Options, Sequelize } from "sequelize";
+import config from "@db/config";
 
-function verifyDatabaseURI(val: any): asserts val is string {
-  if (typeof val !== "string") {
-    throw new Error("Database URI failed to load!");
-  }
+export const options: Options = {
+  host: config.production.host,
+  port: config.production.port,
+  username: config.production.username,
+  password: config.production.password,
+  database: config.production.database,
+  dialect: config.production.dialect,
+  pool: {
+    max: 5,
+    min: 0,
+    idle: 10000,
+  },
+};
+
+function createConnection(): Sequelize {
+  return new Sequelize(options);
 }
 
-async function verifyConnection(conn: Sequelize) {
+async function testConnection(conn: Sequelize) {
   try {
-    await sequelize.authenticate();
-  } catch (e) {
-    throw new Error("Sequelize failed to connect to database");
+    await conn.authenticate();
+  } catch (error) {
+    throw new Error("Sequelize failed to authenticate connection to database.");
   }
 }
 
-const DB_URI = process.env.DB_URI;
-verifyDatabaseURI(DB_URI);
-
-const sequelize = new Sequelize(DB_URI);
-
-verifyConnection(sequelize);
+const sequelize = createConnection();
+await testConnection(sequelize);
 
 export default sequelize;

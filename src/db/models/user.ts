@@ -1,14 +1,11 @@
 import sequelize from "@db/connection";
 import { DataTypes } from "sequelize";
 
-import fixAndFlip from "./fix-and-flip";
-
 const User = sequelize.define("user", {
   id: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
     primaryKey: true,
-    unique: true,
-    allowNull: false,
   },
   email: {
     type: DataTypes.STRING,

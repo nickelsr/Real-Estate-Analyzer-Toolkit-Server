@@ -1,4 +1,14 @@
 import { Schema, checkSchema } from "express-validator";
+import { FixAndFlip } from "@db/models";
+
+const propertyTypes = [
+  "Single Family Home",
+  "Townhouse",
+  "Duplex",
+  "Condo",
+  "Apartment",
+  "Other",
+];
 
 /**
  * Custom validator that verifies acceptable property types.
@@ -6,14 +16,22 @@ import { Schema, checkSchema } from "express-validator";
  * @param value - input value to validate.
  */
 const isValidPropertyType = (value: string): boolean => {
-  return (
-    value === "Single Family Home" ||
-    value === "Townhouse" ||
-    value === "Duplex" ||
-    value === "Condo" ||
-    value === "Apartment" ||
-    value === "Other"
-  );
+  return propertyTypes.includes(value);
+};
+
+/**
+ * Custom validator that verifies street address uniqueness per user.
+ *
+ * @param value - input value to validate.
+ */
+const isDuplicateStreetAddress = async (value: string): Promise<boolean> => {
+  const address = await FixAndFlip.findOne({
+    where: { street_address: value },
+  });
+  if (address) {
+    return Promise.reject();
+  }
+  return Promise.resolve(true);
 };
 
 /**
@@ -36,7 +54,7 @@ const toCapitalCase = (value: string): string => {
 };
 
 const schema: Schema = {
-  property_details: {
+  "property_details": {
     isObject: {
       errorMessage: "Must be an object.",
     },
@@ -49,6 +67,13 @@ const schema: Schema = {
     trim: true,
     notEmpty: {
       errorMessage: "Must be non-empty.",
+    },
+    custom: {
+      options: isDuplicateStreetAddress,
+      errorMessage:
+        "Duplicate street address. User can only have one Fix-And-Flip " +
+        "entry with the same address. Either delete the existing entry and " +
+        "retry, or edit the existing entry instead.",
     },
   },
   "property_details.city": {
@@ -95,8 +120,8 @@ const schema: Schema = {
     custom: {
       options: isValidPropertyType,
       errorMessage:
-        "Invalid type. Must be one of the following: 'Single Family Home', " +
-        "'Condo', 'Apartment', 'Duplex', 'Townhouse', 'Other'.",
+        "Invalid property type. Must be one of the following: " +
+        propertyTypes.join(", "),
     },
   },
   "property_details.num_bedrooms": {
@@ -134,7 +159,7 @@ const schema: Schema = {
     },
     escape: true,
   },
-  estimates: {
+  "estimates": {
     isObject: {
       errorMessage: "Must be an object.",
     },
@@ -151,7 +176,7 @@ const schema: Schema = {
       errorMessage: "Must be a positive integer.",
     },
   },
-  purchase_costs: {
+  "purchase_costs": {
     isObject: {
       errorMessage: "Must be an object.",
     },
@@ -162,7 +187,7 @@ const schema: Schema = {
       errorMessage: "Must be a positive integer.",
     },
   },
-  rehab_costs: {
+  "rehab_costs": {
     isObject: {
       errorMessage: "Must be an object.",
     },
@@ -185,7 +210,7 @@ const schema: Schema = {
       errorMessage: "Must be a positive integer.",
     },
   },
-  sales_costs: {
+  "sales_costs": {
     isObject: {
       errorMessage: "Must be an object.",
     },

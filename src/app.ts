@@ -1,6 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 
+import authRouter from "@routes/auth";
 import formRouter from "@routes/form";
 
 const app = express();
@@ -9,7 +10,8 @@ const app = express();
 app.use(cookieParser());
 
 // routers
-app.use(formRouter);
+app.use("/auth", authRouter);
+app.use("/form", formRouter);
 
 // TODO: create standard error handler route below to catch errors
 

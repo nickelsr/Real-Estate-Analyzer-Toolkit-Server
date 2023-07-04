@@ -1,7 +1,7 @@
 import { Router, json } from "express";
 
 import { postFixAndFlip } from "@controllers/form";
-import validateFixAndFlip from "@middleware/validation/fix-and-flip";
+import { validateFixAndFlip } from "@middleware/validation/form";
 
 const router = Router();
 

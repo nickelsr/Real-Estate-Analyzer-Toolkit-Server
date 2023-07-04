@@ -22,7 +22,8 @@ const isValidPropertyType = (value: string): boolean => {
 /**
  * Custom validator that verifies street address uniqueness per user.
  *
- * @param value - input value to validate.
+ * @param value - input value to validate
+ * @returns a boolean
  */
 const isDuplicateStreetAddress = async (value: string): Promise<boolean> => {
   const address = await FixAndFlip.findOne({

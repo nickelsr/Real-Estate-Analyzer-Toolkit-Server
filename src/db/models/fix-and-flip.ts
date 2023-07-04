@@ -1,90 +1,131 @@
 import sequelize from "@db/connection";
-import { DataTypes } from "sequelize";
+import {
+  CreationOptional,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  Model,
+} from "sequelize";
 
-const FixAndFlip = sequelize.define("FixAndFlip", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
+class FixAndFlip extends Model<
+  InferAttributes<FixAndFlip>,
+  InferCreationAttributes<FixAndFlip>
+> {
+  declare id: CreationOptional<number>;
+  declare street_address: string;
+  declare city: string;
+  declare state: string;
+  declare zip_code: string;
+  declare property_type: string | null;
+  declare num_bedrooms: number | null;
+  declare num_bathrooms: number | null;
+  declare square_footage: number | null;
+  declare year_built: number | null;
+  declare description: string | null;
+  declare after_repair_value: number;
+  declare desired_profit: number;
+  declare purchase_closing_costs: number;
+  declare repair_costs: number;
+  declare holding_costs: number;
+  declare holding_time_months: number;
+  declare agent_commission: number;
+  declare sale_closing_costs: number;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+}
+
+FixAndFlip.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    // property info
+    street_address: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    city: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    state: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    zip_code: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    property_type: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    num_bedrooms: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    num_bathrooms: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    square_footage: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    year_built: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    // estimates
+    after_repair_value: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    desired_profit: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    // purchase costs
+    purchase_closing_costs: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    // rehab costs
+    repair_costs: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    holding_costs: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    holding_time_months: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    // sales costs
+    agent_commission: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    sale_closing_costs: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
   },
-  // property info
-  street_address: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  city: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  state: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  zip_code: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  property_type: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  num_bedrooms: {
-    type: DataTypes.BIGINT,
-    allowNull: true,
-  },
-  num_bathrooms: {
-    type: DataTypes.BIGINT,
-    allowNull: true,
-  },
-  square_footage: {
-    type: DataTypes.BIGINT,
-    allowNull: true,
-  },
-  year_built: {
-    type: DataTypes.BIGINT,
-    allowNull: true,
-  },
-  description: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  // estimates
-  after_repair_value: {
-    type: DataTypes.BIGINT,
-    allowNull: false,
-  },
-  desired_profit: {
-    type: DataTypes.BIGINT,
-    allowNull: false,
-  },
-  // purchase costs
-  purchase_closing_costs: {
-    type: DataTypes.BIGINT,
-    allowNull: false,
-  },
-  // rehab costs
-  repair_costs: {
-    type: DataTypes.BIGINT,
-    allowNull: false,
-  },
-  holding_costs: {
-    type: DataTypes.BIGINT,
-    allowNull: false,
-  },
-  holding_time_months: {
-    type: DataTypes.BIGINT,
-    allowNull: false,
-  },
-  // sales costs
-  agent_commission: {
-    type: DataTypes.BIGINT,
-    allowNull: false,
-  },
-  sale_closing_costs: {
-    type: DataTypes.BIGINT,
-    allowNull: false,
-  },
-});
+  {
+    tableName: "FixAndFlips",
+    sequelize,
+  }
+);
 
 export default FixAndFlip;

@@ -1,23 +1,11 @@
-import { Schema, checkSchema } from "express-validator";
-import { FixAndFlip } from "@db/models";
-
-const propertyTypes = [
-  "Single Family Home",
-  "Townhouse",
-  "Duplex",
-  "Condo",
-  "Apartment",
-  "Other",
-];
-
-/**
- * Custom validator that verifies acceptable property types.
- *
- * @param value - input value to validate.
- */
-const isValidPropertyType = (value: string): boolean => {
-  return propertyTypes.includes(value);
-};
+import { ValidationChain, body } from "express-validator";
+import { FixAndFlip, isPropertyType, propertyTypes } from "@db/models";
+import {
+  isEmptyMessage,
+  isObjectMessage,
+  isStringMessage,
+} from "@middleware/validation/error-messages";
+import { ErrorMessage } from "express-validator/src/base";
 
 /**
  * Custom validator that verifies street address uniqueness per user.
@@ -54,183 +42,110 @@ const toCapitalCase = (value: string): string => {
   return capitalizedValue;
 };
 
-const schema: Schema = {
-  "property_details": {
-    isObject: {
-      errorMessage: "Must be an object.",
-    },
-  },
-  "property_details.street_address": {
-    isString: {
-      errorMessage: "Must be a string.",
-    },
-    escape: true,
-    trim: true,
-    notEmpty: {
-      errorMessage: "Must be non-empty.",
-    },
-    custom: {
-      options: isDuplicateStreetAddress,
-      errorMessage:
-        "Duplicate street address. User can only have one Fix-And-Flip " +
-        "entry with the same address. Either delete the existing entry and " +
-        "retry, or edit the existing entry instead.",
-    },
-  },
-  "property_details.city": {
-    isString: {
-      errorMessage: "Must be a string.",
-    },
-    escape: true,
-    trim: true,
-    notEmpty: {
-      errorMessage: "Must be non-empty.",
-    },
-  },
-  "property_details.state": {
-    isString: {
-      errorMessage: "Must be a string.",
-    },
-    trim: true,
-    toUpperCase: true,
-    matches: {
-      options: /^[A-Z]{2}$/,
-      errorMessage: "Must be in two letter abbreviated format (e.g., 'NY').",
-    },
-  },
-  "property_details.zip_code": {
-    isString: {
-      errorMessage: "Must be a string.",
-    },
-    trim: true,
-    matches: {
-      options: /^\d{5}(-\d{4})?$/,
-      errorMessage:
-        "Must be in ZIP format (e.g., '12345'), or extended ZIP+4 format " +
-        "(e.g., '12345-1234').",
-    },
-  },
-  "property_details.property_type": {
-    optional: true,
-    isString: {
-      errorMessage: "Must be a string.",
-    },
-    customSanitizer: {
-      options: toCapitalCase,
-    },
-    custom: {
-      options: isValidPropertyType,
-      errorMessage:
-        "Invalid property type. Must be one of the following: " +
-        propertyTypes.join(", "),
-    },
-  },
-  "property_details.num_bedrooms": {
-    optional: true,
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer number.",
-    },
-  },
-  "property_details.num_bathrooms": {
-    optional: true,
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer number.",
-    },
-  },
-  "property_details.square_footage": {
-    optional: true,
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer number.",
-    },
-  },
-  "property_details.year_built": {
-    optional: true,
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer.",
-    },
-  },
-  "property_details.description": {
-    optional: true,
-    isString: {
-      errorMessage: "Must be a string.",
-    },
-    escape: true,
-  },
-  "estimates": {
-    isObject: {
-      errorMessage: "Must be an object.",
-    },
-  },
-  "estimates.after_repair_value": {
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer.",
-    },
-  },
-  "estimates.desired_profit": {
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer.",
-    },
-  },
-  "purchase_costs": {
-    isObject: {
-      errorMessage: "Must be an object.",
-    },
-  },
-  "purchase_costs.purchase_closing_costs": {
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer.",
-    },
-  },
-  "rehab_costs": {
-    isObject: {
-      errorMessage: "Must be an object.",
-    },
-  },
-  "rehab_costs.repair_costs": {
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer.",
-    },
-  },
-  "rehab_costs.holding_costs": {
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer.",
-    },
-  },
-  "rehab_costs.holding_time_months": {
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer.",
-    },
-  },
-  "sales_costs": {
-    isObject: {
-      errorMessage: "Must be an object.",
-    },
-  },
-  "sales_costs.agent_commission": {
-    optional: true,
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer.",
-    },
-  },
-  "sales_costs.sale_closing_costs": {
-    matches: {
-      options: /^\d+$/,
-      errorMessage: "Must be a positive integer.",
-    },
-  },
-};
+const isDuplicateStreetAddressMessage: ErrorMessage =
+  "Duplicate street address. User can only have one Fix-And-Flip entry with " +
+  "the same address. Either delete the existing entry and retry, or edit " +
+  "the existing entry instead.";
 
-const validate = checkSchema(schema, ["body"]);
+const formattedStateMessage: ErrorMessage =
+  "Must be in two letter abbreviated format (e.g., 'NY').";
 
-export default validate;
+const formattedZipMessage: ErrorMessage =
+  "Must be in ZIP format (e.g., '12345'), or extended ZIP+4 format " +
+  "(e.g., '12345-1234').";
+
+const propertyTypeMessage: ErrorMessage =
+  "Invalid property type. Must be one of the following: " +
+  propertyTypes.join(", ");
+
+const notPosNumberMessage: ErrorMessage = "Must be a positive integer number.";
+
+export const fixAndFlipValidationRules = (): ValidationChain[] => [
+  body("property_details").isObject().withMessage(isObjectMessage),
+  body("property_details.street_address")
+    .isString()
+    .withMessage(isStringMessage)
+    .escape()
+    .trim()
+    .notEmpty()
+    .withMessage(isEmptyMessage)
+    .custom(isDuplicateStreetAddress)
+    .withMessage(isDuplicateStreetAddressMessage),
+  body("property_details.city")
+    .isString()
+    .withMessage(isStringMessage)
+    .escape()
+    .trim()
+    .notEmpty()
+    .withMessage(isEmptyMessage),
+  body("property_details.state")
+    .isString()
+    .withMessage(isStringMessage)
+    .trim()
+    .toUpperCase()
+    .matches(/^[A-Z]{2}$/)
+    .withMessage(formattedStateMessage),
+  body("property_details.zip_code")
+    .isString()
+    .withMessage(isStringMessage)
+    .trim()
+    .matches(/^\d{5}(-\d{4})?$/)
+    .withMessage(formattedZipMessage),
+  body("property_details.property_type")
+    .optional()
+    .isString()
+    .withMessage(isStringMessage)
+    .customSanitizer(toCapitalCase)
+    .custom(isPropertyType)
+    .withMessage(propertyTypeMessage),
+  body("property_details.num_bedrooms")
+    .optional()
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("property_details.num_bathrooms")
+    .optional()
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("property_details.square_footage")
+    .optional()
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("property_details.year_built")
+    .optional()
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("property_details.description")
+    .optional()
+    .isString()
+    .withMessage(isStringMessage)
+    .escape(),
+  body("estimates").isObject().withMessage(isObjectMessage),
+  body("estimates.after_repair_value")
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("estimates.desired_profit")
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("purchase_costs").isObject().withMessage(isObjectMessage),
+  body("purchase_costs.purchase_closing_costs")
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("rehab_costs").isObject().withMessage(isObjectMessage),
+  body("rehab_costs.repair_costs")
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("rehab_costs.holding_costs")
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("rehab_costs.holding_time_months")
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("sales_costs").isObject().withMessage(isObjectMessage),
+  body("sales_costs.agent_commission")
+    .optional()
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+  body("sales_costs.sale_closing_costs")
+    .matches(/^\d+$/)
+    .withMessage(notPosNumberMessage),
+];

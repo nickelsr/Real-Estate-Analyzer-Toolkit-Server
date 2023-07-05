@@ -1,4 +1,4 @@
-import { CustomValidator, body } from "express-validator";
+import { CustomValidator } from "express-validator";
 
 import { User } from "@db/models";
 import {
@@ -6,7 +6,7 @@ import {
   passwordValidationChain,
   usernameValidationChain,
 } from "@middleware/validation/auth/validation-chains";
-import { isStrongPasswordMessage } from "@middleware/validation/auth/error-messages";
+import { isStrongPasswordMessage } from "@middleware/validation/error-messages";
 
 /**
  * Checks if a username is available.

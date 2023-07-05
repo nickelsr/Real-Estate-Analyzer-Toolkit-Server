@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize";
 import sequelize from "@db/connection";
 
-import FixAndFlip from "./fix-and-flip";
+import { FixAndFlip } from "./fix-and-flip";
 import User from "./user";
 
 /**
@@ -18,3 +18,4 @@ FixAndFlip.belongsTo(User);
 syncTables(sequelize);
 
 export { FixAndFlip, User };
+export { propertyTypes, isPropertyType } from "./fix-and-flip";

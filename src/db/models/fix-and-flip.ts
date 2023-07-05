@@ -7,7 +7,24 @@ import {
   Model,
 } from "sequelize";
 
-class FixAndFlip extends Model<
+export const propertyTypes = [
+  "Single Family Home",
+  "Townhouse",
+  "Duplex",
+  "Condo",
+  "Apartment",
+  "Other",
+] as const;
+
+type PropertyType = (typeof propertyTypes)[number];
+
+export function isPropertyType(value: any): value is PropertyType {
+  return propertyTypes.includes(value);
+}
+
+// TODO: Add associations. See sequelize typescript documentation. https://sequelize.org/docs/v6/other-topics/typescript/
+
+export class FixAndFlip extends Model<
   InferAttributes<FixAndFlip>,
   InferCreationAttributes<FixAndFlip>
 > {
@@ -127,5 +144,3 @@ FixAndFlip.init(
     sequelize,
   }
 );
-
-export default FixAndFlip;

@@ -12,3 +12,7 @@ export const isStrongPasswordMessage: ErrorMessage =
   "lowercase letter, one uppercase letter, one number, and one symbol.";
 
 export const isEmailMessage: ErrorMessage = "Must be a valid email.";
+
+export const isObjectMessage: ErrorMessage = "Must be an object.";
+
+export const isEmptyMessage: ErrorMessage = "Must be non-empty.";

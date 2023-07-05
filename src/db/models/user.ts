@@ -7,6 +7,8 @@ import {
   CreationOptional,
 } from "sequelize";
 
+// TODO: Add associations. See sequelize typescript documentation. https://sequelize.org/docs/v6/other-topics/typescript/
+
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<number>;
   declare email: string;

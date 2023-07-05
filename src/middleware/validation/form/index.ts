@@ -1,3 +1,1 @@
-import validateFixAndFlip from "./fix-and-flip";
-
-export { validateFixAndFlip };
+export * from "./fix-and-flip";

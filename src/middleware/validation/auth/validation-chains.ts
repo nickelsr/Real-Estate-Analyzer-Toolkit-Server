@@ -4,7 +4,7 @@ import {
   isAlphanumericMessage,
   isEmailMessage,
   isStringMessage,
-} from "@middleware/validation/auth/error-messages";
+} from "@middleware/validation/error-messages";
 import { ValidationChain, body } from "express-validator";
 
 /**

@@ -1,10 +1,13 @@
 import sequelize from "@db/connection";
+import User from "@db/models/user";
 import {
   CreationOptional,
   DataTypes,
+  ForeignKey,
   InferAttributes,
   InferCreationAttributes,
   Model,
+  NonAttribute,
 } from "sequelize";
 
 export const propertyTypes = [
@@ -28,6 +31,12 @@ export class FixAndFlip extends Model<
   InferAttributes<FixAndFlip>,
   InferCreationAttributes<FixAndFlip>
 > {
+  // id of User who submitted this form
+  declare ownerId: ForeignKey<User["id"]>;
+
+  // Eagerly-loaded User
+  declare owner?: NonAttribute<User>;
+
   declare id: CreationOptional<number>;
   declare street_address: string;
   declare city: string;

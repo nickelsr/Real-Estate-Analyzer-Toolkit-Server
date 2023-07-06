@@ -1,10 +1,16 @@
 import sequelize from "@db/connection";
+import User from "@db/models/user";
 import {
+  BelongsToCreateAssociationMixin,
+  BelongsToGetAssociationMixin,
+  BelongsToSetAssociationMixin,
   CreationOptional,
   DataTypes,
+  ForeignKey,
   InferAttributes,
   InferCreationAttributes,
   Model,
+  NonAttribute,
 } from "sequelize";
 
 export const propertyTypes = [
@@ -22,12 +28,13 @@ export function isPropertyType(value: any): value is PropertyType {
   return propertyTypes.includes(value);
 }
 
-// TODO: Add associations. See sequelize typescript documentation. https://sequelize.org/docs/v6/other-topics/typescript/
-
 export class FixAndFlip extends Model<
   InferAttributes<FixAndFlip>,
   InferCreationAttributes<FixAndFlip>
 > {
+  declare ownerId: ForeignKey<User["id"]>;
+  declare owner?: NonAttribute<User>;
+
   declare id: CreationOptional<number>;
   declare street_address: string;
   declare city: string;
@@ -49,6 +56,10 @@ export class FixAndFlip extends Model<
   declare sale_closing_costs: number;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+
+  declare getUser: BelongsToGetAssociationMixin<User>;
+  declare setUser: BelongsToSetAssociationMixin<User, number>;
+  declare createUser: BelongsToCreateAssociationMixin<User>;
 }
 
 FixAndFlip.init(

@@ -1,13 +1,24 @@
 import sequelize from "@db/connection";
+import { FixAndFlip } from "@db/models/fix-and-flip";
 import {
   DataTypes,
   Model,
   InferAttributes,
   InferCreationAttributes,
   CreationOptional,
+  HasManyGetAssociationsMixin,
+  HasManyAddAssociationMixin,
+  HasManyAddAssociationsMixin,
+  HasManySetAssociationsMixin,
+  HasManyRemoveAssociationMixin,
+  HasManyRemoveAssociationsMixin,
+  HasManyHasAssociationMixin,
+  HasManyHasAssociationsMixin,
+  HasManyCountAssociationsMixin,
+  HasManyCreateAssociationMixin,
+  NonAttribute,
+  Association,
 } from "sequelize";
-
-// TODO: Add associations. See sequelize typescript documentation. https://sequelize.org/docs/v6/other-topics/typescript/
 
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<number>;
@@ -16,12 +27,32 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare password: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+
+  declare getFixAndFlips: HasManyGetAssociationsMixin<FixAndFlip>;
+  declare addFixAndFlip: HasManyAddAssociationMixin<FixAndFlip, number>;
+  declare addFixAndFlips: HasManyAddAssociationsMixin<FixAndFlip, number>;
+  declare setFixAndFlips: HasManySetAssociationsMixin<FixAndFlip, number>;
+  declare removeFixAndFlip: HasManyRemoveAssociationMixin<FixAndFlip, number>;
+  declare removeFixAndFlips: HasManyRemoveAssociationsMixin<FixAndFlip, number>;
+  declare hasFixAndFlip: HasManyHasAssociationMixin<FixAndFlip, number>;
+  declare hasFixAndFlips: HasManyHasAssociationsMixin<FixAndFlip, number>;
+  declare countFixAndFlips: HasManyCountAssociationsMixin;
+  declare createFixAndFlip: HasManyCreateAssociationMixin<
+    FixAndFlip,
+    "ownerId"
+  >;
+
+  declare fixAndFlips?: NonAttribute<FixAndFlip[]>;
+
+  declare static associations: {
+    fixAndFlips: Association<User, FixAndFlip>;
+  };
 }
 
 User.init(
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER.UNSIGNED,
       autoIncrement: true,
       primaryKey: true,
     },

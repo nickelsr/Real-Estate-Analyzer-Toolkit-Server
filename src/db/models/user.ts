@@ -16,6 +16,8 @@ import {
   HasManyHasAssociationsMixin,
   HasManyCountAssociationsMixin,
   HasManyCreateAssociationMixin,
+  NonAttribute,
+  Association,
 } from "sequelize";
 
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
@@ -26,10 +28,6 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
-  // These mixins must be declared virtually because TS cannot determine
-  // model association at compile time. They will only exist once Model.init
-  // is called. For more information, see
-  // https://sequelize.org/docs/v6/other-topics/typescript/
   declare getFixAndFlips: HasManyGetAssociationsMixin<FixAndFlip>;
   declare addFixAndFlip: HasManyAddAssociationMixin<FixAndFlip, number>;
   declare addFixAndFlips: HasManyAddAssociationsMixin<FixAndFlip, number>;
@@ -43,12 +41,18 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     FixAndFlip,
     "ownerId"
   >;
+
+  declare fixAndFlips?: NonAttribute<FixAndFlip[]>;
+
+  declare static associations: {
+    fixAndFlips: Association<User, FixAndFlip>;
+  };
 }
 
 User.init(
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER.UNSIGNED,
       autoIncrement: true,
       primaryKey: true,
     },

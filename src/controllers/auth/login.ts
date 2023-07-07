@@ -3,8 +3,8 @@ import { validationResult } from "express-validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-import useGetParameter, { JWT_SIGNING_KEY } from "@aws/ssm/useGetParameter";
 import { User } from "@db/models";
+import { jwtSecretKey } from "util/jwt-secret";
 
 export const postLogin = async (
   req: Request,
@@ -16,26 +16,29 @@ export const postLogin = async (
     return res.status(400).json({ errors: errors.mapped() });
   }
 
-  const { submittedEmail, submittedPassword } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { email: submittedEmail } });
+    const user = await User.findOne({ where: { email: email } });
     if (user === null) {
       return res.status(404).json({ message: "Email not found." });
     }
     const userData = user.get();
 
-    const match = await bcrypt.compare(submittedPassword, userData.password);
+    const match = await bcrypt.compare(password, userData.password);
     if (!match) {
       return res.status(401).json({ message: "Incorrect password." });
     }
 
-    const secretKey = await useGetParameter(JWT_SIGNING_KEY);
-
     const token = jwt.sign(
-      { userId: userData.id, email: submittedEmail },
-      secretKey,
-      { expiresIn: "10m" }
+      {
+        userId: userData.id,
+        email: email,
+      },
+      jwtSecretKey,
+      {
+        expiresIn: "10m",
+      }
     );
 
     return res.status(200).json({ token: token, userId: userData.id });

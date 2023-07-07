@@ -11,7 +11,8 @@
       "@db/*": ["./db/*"],
       "@middleware/*": ["./middleware/*"],
       "@routes/*": ["./routes/*"],
-      "@aws/*": ["./aws/*"]
+      "@aws/*": ["./aws/*"],
+      "@util/*": ["./util/*"]
     },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

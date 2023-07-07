@@ -13,6 +13,4 @@ export const isStrongPasswordMessage: ErrorMessage =
 
 export const isEmailMessage: ErrorMessage = "Must be a valid email.";
 
-export const isObjectMessage: ErrorMessage = "Must be an object.";
-
 export const isEmptyMessage: ErrorMessage = "Must be non-empty.";

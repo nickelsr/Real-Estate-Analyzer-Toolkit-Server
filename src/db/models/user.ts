@@ -20,7 +20,10 @@ import {
   Association,
 } from "sequelize";
 
-class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+class User extends Model<
+  InferAttributes<User, { omit: "fixAndFlips" }>,
+  InferCreationAttributes<User, { omit: "fixAndFlips" }>
+> {
   declare id: CreationOptional<number>;
   declare email: string;
   declare username: string;
@@ -37,10 +40,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare hasFixAndFlip: HasManyHasAssociationMixin<FixAndFlip, number>;
   declare hasFixAndFlips: HasManyHasAssociationsMixin<FixAndFlip, number>;
   declare countFixAndFlips: HasManyCountAssociationsMixin;
-  declare createFixAndFlip: HasManyCreateAssociationMixin<
-    FixAndFlip,
-    "ownerId"
-  >;
+  declare createFixAndFlip: HasManyCreateAssociationMixin<FixAndFlip, "UserId">;
 
   declare fixAndFlips?: NonAttribute<FixAndFlip[]>;
 
@@ -52,7 +52,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
 User.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },

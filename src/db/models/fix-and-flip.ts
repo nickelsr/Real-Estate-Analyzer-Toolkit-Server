@@ -32,8 +32,8 @@ export class FixAndFlip extends Model<
   InferAttributes<FixAndFlip>,
   InferCreationAttributes<FixAndFlip>
 > {
-  declare ownerId: ForeignKey<User["id"]>;
-  declare owner?: NonAttribute<User>;
+  declare UserId: ForeignKey<User["id"]>;
+  declare User?: NonAttribute<User>;
 
   declare id: CreationOptional<number>;
   declare street_address: string;
@@ -69,7 +69,6 @@ FixAndFlip.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    // property info
     street_address: {
       type: DataTypes.STRING,
       unique: true,
@@ -111,7 +110,6 @@ FixAndFlip.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    // estimates
     after_repair_value: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -120,12 +118,10 @@ FixAndFlip.init(
       type: DataTypes.BIGINT,
       allowNull: false,
     },
-    // purchase costs
     purchase_closing_costs: {
       type: DataTypes.BIGINT,
       allowNull: false,
     },
-    // rehab costs
     repair_costs: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -138,7 +134,6 @@ FixAndFlip.init(
       type: DataTypes.BIGINT,
       allowNull: false,
     },
-    // sales costs
     agent_commission: {
       type: DataTypes.BIGINT,
       allowNull: false,

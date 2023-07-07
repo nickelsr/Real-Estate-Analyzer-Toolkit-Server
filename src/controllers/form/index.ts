@@ -1,3 +1,1 @@
-import { postFixAndFlip } from "./fix-and-flip";
-
-export { postFixAndFlip };
+export * from "./fix-and-flip";

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { jwtSecretKey } from "util/jwt-secret";
+import { jwtSecretKey } from "@util/jwt-secret";
 
 const isJwtPayload = (token: string | JwtPayload): token is JwtPayload => {
   return typeof token !== "string";

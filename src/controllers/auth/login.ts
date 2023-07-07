@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 import { User } from "@db/models";
-import { jwtSecretKey } from "util/jwt-secret";
+import { jwtSecretKey } from "@util/jwt-secret";
 
 export const postLogin = async (
   req: Request,

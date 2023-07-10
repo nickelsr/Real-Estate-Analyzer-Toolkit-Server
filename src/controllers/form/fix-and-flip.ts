@@ -13,6 +13,18 @@ export const createFixAndFlip = async (req: Request, res: Response) => {
   const fixAndFlipProps = parseReqBody(req);
 
   try {
+    const duplicateAddress = await FixAndFlip.findOne({
+      where: { street_address: fixAndFlipProps.street_address },
+    });
+    if (duplicateAddress) {
+      return res.status(400).json({
+        message:
+          "Duplicate street address. User can only have one Fix-And-Flip " +
+          "entry with the same address. Either delete the existing entry " +
+          "and retry, or edit the existing entry instead.",
+      });
+    }
+
     const user = await User.findByPk(userId);
 
     if (!user) {
@@ -117,12 +129,10 @@ export const updateFixAndFlip = async (req: Request, res: Response) => {
 
     await record.update(fixAndFlipProps);
 
-    return res
-      .status(200)
-      .json({
-        message: "Fix And Flip record updated successfully.",
-        record: record,
-      });
+    return res.status(200).json({
+      message: "Fix And Flip record updated successfully.",
+      record: record,
+    });
   } catch (error) {
     if (error instanceof Error) {
       return res.status(400).json({ message: error.message });

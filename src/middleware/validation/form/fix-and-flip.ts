@@ -1,23 +1,7 @@
 import { ValidationChain, body } from "express-validator";
 import { ErrorMessage } from "express-validator/src/base";
-import { FixAndFlip, isPropertyType, propertyTypes } from "@db/models";
+import { isPropertyType, propertyTypes } from "@db/models";
 import { isEmptyMessage, isStringMessage } from "../error-messages";
-
-/**
- * Custom validator that verifies street address uniqueness per user.
- *
- * @param value - input value to validate
- * @returns a boolean
- */
-const isDuplicateStreetAddress = async (value: string): Promise<boolean> => {
-  const address = await FixAndFlip.findOne({
-    where: { street_address: value },
-  });
-  if (address) {
-    return Promise.reject();
-  }
-  return Promise.resolve(true);
-};
 
 /**
  * Custom sanitizer that converts a string to capital case.
@@ -37,11 +21,6 @@ const toCapitalCase = (value: string): string => {
 
   return capitalizedValue;
 };
-
-const isDuplicateStreetAddressMessage: ErrorMessage =
-  "Duplicate street address. User can only have one Fix-And-Flip entry with " +
-  "the same address. Either delete the existing entry and retry, or edit " +
-  "the existing entry instead.";
 
 const formattedStateMessage: ErrorMessage =
   "Must be in two letter abbreviated format (e.g., 'NY').";
@@ -63,9 +42,7 @@ export const fixAndFlipValidate = (): ValidationChain[] => [
     .escape()
     .trim()
     .notEmpty()
-    .withMessage(isEmptyMessage)
-    .custom(isDuplicateStreetAddress)
-    .withMessage(isDuplicateStreetAddressMessage),
+    .withMessage(isEmptyMessage),
   body("city")
     .isString()
     .withMessage(isStringMessage)

@@ -1,19 +1,17 @@
 import { Options, Sequelize } from "sequelize";
 import config from "@db/config";
 
-export const options: Options = {
-  host: config.production.host,
-  port: config.production.port,
-  username: config.production.username,
-  password: config.production.password,
-  database: config.production.database,
-  dialect: config.production.dialect,
-  pool: {
-    max: 5,
-    min: 0,
-    idle: 10000,
-  },
-};
+let options: Options;
+
+if (process.env.DB === "production") {
+  options = config.production;
+}
+if (process.env.DB === "development") {
+  options = config.development;
+}
+if (process.env.DB === "test") {
+  options = config.test;
+}
 
 function createConnection(): Sequelize {
   return new Sequelize(options);
@@ -29,5 +27,7 @@ async function testConnection(conn: Sequelize) {
 
 const sequelize = createConnection();
 await testConnection(sequelize);
+
+export { options };
 
 export default sequelize;

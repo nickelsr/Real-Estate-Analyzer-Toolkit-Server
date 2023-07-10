@@ -8,7 +8,7 @@ import User from "./user";
  * Creates tables in database if they don't exist based on defined models.
  */
 async function syncTables(conn: Sequelize) {
-  await conn.sync();
+  await conn.sync({ force: true });
 }
 
 // Define Sequelize table associations

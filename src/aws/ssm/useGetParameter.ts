@@ -9,15 +9,23 @@ function isString(
   }
 }
 
-type ParameterName =
+export type ParameterName =
   | "JWT_SIGNING_KEY"
-  | "DB_ENDPOINT"
-  | "DB_PORT"
-  | "DB_USERNAME"
-  | "DB_PASSWORD"
+  | "DB_PROD_HOST"
+  | "DB_PROD_PORT"
   | "DB_PROD_DATABASE"
+  | "DB_PROD_USERNAME"
+  | "DB_PROD_PASSWORD"
+  | "DB_TEST_HOST"
+  | "DB_TEST_PORT"
   | "DB_TEST_DATABASE"
-  | "DB_DEV_DATABASE";
+  | "DB_TEST_USERNAME"
+  | "DB_TEST_PASSWORD"
+  | "DB_DEV_HOST"
+  | "DB_DEV_PORT"
+  | "DB_DEV_DATABASE"
+  | "DB_DEV_USERNAME"
+  | "DB_DEV_PASSWORD";
 
 async function useGetParameter(name: ParameterName): Promise<string> {
   const client = new SSMClient({ region: "us-west-1" });
@@ -39,14 +47,5 @@ async function useGetParameter(name: ParameterName): Promise<string> {
     throw new Error("Error fetching parameter from SSM Parameter-Store.");
   }
 }
-
-export const JWT_SIGNING_KEY: ParameterName = "JWT_SIGNING_KEY";
-export const DB_HOST: ParameterName = "DB_ENDPOINT";
-export const DB_PORT: ParameterName = "DB_PORT";
-export const DB_USERNAME: ParameterName = "DB_USERNAME";
-export const DB_PASSWORD: ParameterName = "DB_PASSWORD";
-export const DB_PROD_DATABASE: ParameterName = "DB_PROD_DATABASE";
-export const DB_TEST_DATABASE: ParameterName = "DB_TEST_DATABASE";
-export const DB_DEV_DATABASE: ParameterName = "DB_DEV_DATABASE";
 
 export default useGetParameter;

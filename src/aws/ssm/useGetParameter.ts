@@ -15,17 +15,7 @@ export type ParameterName =
   | "DB_PROD_PORT"
   | "DB_PROD_DATABASE"
   | "DB_PROD_USERNAME"
-  | "DB_PROD_PASSWORD"
-  | "DB_TEST_HOST"
-  | "DB_TEST_PORT"
-  | "DB_TEST_DATABASE"
-  | "DB_TEST_USERNAME"
-  | "DB_TEST_PASSWORD"
-  | "DB_DEV_HOST"
-  | "DB_DEV_PORT"
-  | "DB_DEV_DATABASE"
-  | "DB_DEV_USERNAME"
-  | "DB_DEV_PASSWORD";
+  | "DB_PROD_PASSWORD";
 
 async function useGetParameter(name: ParameterName): Promise<string> {
   const client = new SSMClient({ region: "us-west-1" });

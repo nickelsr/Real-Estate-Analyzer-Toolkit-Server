@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.production.json && resolve-tspaths",
-    "dev": "DB=development ts-node-dev -r tsconfig-paths/register src/app.ts",
+    "dev": "DB=development node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "DB=production node dist/app.js"
   },

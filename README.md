@@ -4,12 +4,27 @@
 
 ## Description
 
-This repository hosts the code that drives the API that the [associated web app](https://github.com/nickelsr/Real-Estate-Analyzer-Toolkit-Client) depends on. The source code is available to everyone under the standard [MIT license](https://github.com/nickelsr/Real-Estate-Calculator/blob/main/LICENSE.txt).
+This repository hosts the code that drives the API that the [associated web app](https://github.com/nickelsr/Real-Estate-Analyzer-Toolkit-Client) depends on. Visit the live OpenAPI spec [here](http://nicklazaga.com/api-docs) and test it! The source code is available to everyone under the standard [MIT license](https://github.com/nickelsr/Real-Estate-Calculator/blob/main/LICENSE.txt).
 
-## Features Under Development 
+## Features
 
-- Swagger UI  Documentation
+- User endpoints
+- Form endpoints
+- JWT Bearer Authentication
+- OpenAPI documentation
+
+## Deployment
+
+- Hosted on Amazon Elastic Container Service
+- Amazon Relational Database Service integration and Parameter Store fetching enabled via ECS container level IAM role
+- CICD through CodePipeline linked to this repository, triggered by new commits
+- Production docker builds automatically pushed to Amazon Elastic Container Registry via CodeBuild, enabled by EC2 level IAM role
+- Mitigated server downtime with an EC2 Auto Scaling Group and automatic Elastic IP reconfiguration upon server crashes
+
+## Under Development 
+
 - JWT refresh tokens
+- TLS
 
 ## Development Environment
 

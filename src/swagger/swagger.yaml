@@ -1,0 +1,380 @@
+openapi: 3.0.3
+info:
+  title: Real Estate Analyzer Toolkit - OpenAPI 3.0
+  description: >-
+    This API provides JWT authenticated CRUD operations for user profiles and
+    form submissions within the Real Estate Analyzer Toolkit.
+  license:
+    name: MIT License
+    url: https://github.com/nickelsr/Real-Estate-Analyzer-Toolkit-Server/blob/main/LICENSE
+  version: 1.0.0
+
+tags:
+  - name: user
+    description: User operations
+  - name: form
+    description: Real Estate Analyzation forms
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - user
+      description: Register a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
+      responses:
+        201:
+          description: Successful resource creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        400:
+          description: Failed to create resource
+        403:
+          description: Failed to create resource
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FieldValidationErrors"
+      security:
+        - {}
+
+  /auth/login:
+    post:
+      tags:
+        - user
+      description: User login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: handle@example.com
+                password:
+                  type: string
+                  example: Abcdef1!
+        required: true
+      responses:
+        200:
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/User"
+                  - type: object
+                    properties:
+                      JWT:
+                        type: string
+        400:
+          description: Failed to login. Malformed request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FieldValidationErrors"
+        403:
+          description: Failed to login. Invalid credentials.
+        404:
+          description: Failed to login. User not found.
+      security:
+        - {}
+
+  /form/fix-and-flip:
+    post:
+      tags:
+        - form
+      description: Create Fix-And-Flip record
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FixAndFlip"
+        required: true
+      responses:
+        201:
+          description: Successful resource creation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FixAndFlip"
+        400:
+          description: Failed to create resource. Malformed Request
+        401:
+          description: Failed to create resource. Unauthorized.
+        404:
+          description: Failed to create resource. User not found.
+
+  /form/fix-and-flip/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        allowEmptyValue: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        example: 1
+    get:
+      tags:
+        - form
+      description: Get Fix-And-Flip record
+      responses:
+        200:
+          description: Successfully fetched resource.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FixAndFlip"
+        400:
+          description: Failed to fetch resource.
+        401:
+          description: Failed to fetch resource. Unauthorized.
+        404:
+          description: Failed to fetch resource. Record not found.
+    put:
+      tags:
+        - form
+      description: Update Fix-And-Flip record
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FixAndFlip"
+        required: true
+      responses:
+        200:
+          description: Successfully updated record.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FixAndFlip"
+        400:
+          description: Failed to update resource. Malformed Request
+        401:
+          description: Failed to update resource. Unauthorized.
+        404:
+          description: Failed to update resource. User not found.
+    delete:
+      tags:
+        - form
+      description: Delete Fix-And-Flip record
+      responses:
+        200:
+          description: Successfully deleted resource.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FixAndFlip"
+        400:
+          description: Failed to delete resource.
+        401:
+          description: Failed to delete resource. Unauthorized.
+        404:
+          description: Failed to delete resource. Record not found.
+
+  /form/fix-and-flips:
+    get:
+      tags:
+        - form
+      description: Get all Fix-And-Flip records
+      responses:
+        200:
+          description: Successfully fetched resources.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: "#/components/schemas/FixAndFlip"
+        400:
+          description: Failed to fetch resource.
+        401:
+          description: Failed to fetch resource. Unauthorized.
+        404:
+          description: Failed to fetch resource. Record not found.
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - username
+        - password
+        - email
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          example: 51
+          readOnly: true
+        username:
+          type: string
+          example: SomeName
+        password:
+          type: string
+          example: Abcdef1!
+          writeOnly: true
+        email:
+          type: string
+          example: handle@example.com
+
+    FixAndFlip:
+      type: object
+      required:
+        - street_address
+        - city
+        - zip_code
+        - after_repair_value
+        - desired_profit
+        - purchase_closing_costs
+        - repair_costs
+        - holding_costs
+        - holding_time_months
+        - agent_commission
+        - sale_closing_costs
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          example: 50
+          readOnly: true
+        street_address:
+          type: string
+          example: "555 Place Rd."
+        city:
+          type: string
+          example: "San Francisco"
+        state:
+          type: string
+          example: "CA"
+        zip_code:
+          type: string
+          example: "12345"
+        property_type:
+          type: string
+          enum:
+            - Single Family Home
+            - Townhouse
+            - Duplex
+            - Condo
+            - Apartment
+            - Other
+        num_bedrooms:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 2
+        num_bathrooms:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 1
+        square_footage:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 1100
+        year_built:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 2005
+        description:
+          type: string
+          description: Description of the property
+          example: Needs minor repairs. Cozy neighborhood.
+        after_repair_value:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 650000
+        desired_profit:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 150000
+        purchase_closing_costs:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 5000
+        repair_costs:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 85000
+        holding_costs:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 10000
+        holding_time_months:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 6
+        agent_commission:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 20000
+        sale_closing_costs:
+          type: integer
+          minimum: 0
+          maximum: 9223372036854775807
+          example: 15000
+        createdAt:
+          type: string
+          readOnly: true
+        updatedAt:
+          type: string
+          readOnly: true
+
+    FieldValidationErrors:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          type:
+            type: string
+            enum:
+              - field
+          msg:
+            type: string
+            description: Error message
+            example: Must be a valid email
+          path:
+            type: string
+            description: Name of property responsible for failed validation
+            example: email
+          location:
+            type: string
+            enum:
+              - body
+              - cookies
+              - headers
+              - params
+              - query
+
+  securitySchemes:
+    JWT_Bearer:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+
+security:
+  - JWT_Bearer: []

@@ -1,22 +1,24 @@
+import { readFileSync } from "fs";
+import { resolve, dirname } from "path";
+import url from "url";
+
 import { Router } from "express";
 import swaggerUI from "swagger-ui-express";
-import swaggerJSDoc from "swagger-jsdoc";
+import { parse } from "yaml";
 
 const router = Router();
 
-const options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Real Estate Analyzer Toolkit API",
-      version: "1.0.0",
-    },
-  },
-  apis: ["./dist/routes/*.js"],
-};
-const swaggerSpec = swaggerJSDoc(options);
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const file = readFileSync(
+  resolve(__dirname, "../swagger/swagger.yaml"),
+  "utf-8"
+);
+
+const swaggerSpec = parse(file);
 
 router.use("/", swaggerUI.serve);
+
 router.get("/", swaggerUI.setup(swaggerSpec));
 
 export default router;

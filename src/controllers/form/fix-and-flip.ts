@@ -58,7 +58,7 @@ export const getFixAndFlip = async (req: Request, res: Response) => {
   try {
     const record = await FixAndFlip.findByPk(recordId);
     if (!record) {
-      return res.status(400).json({ message: "Invalid recordId." });
+      return res.status(404).json({ message: "Invalid recordId." });
     }
 
     const ownerId = record.getDataValue("UserId");

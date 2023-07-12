@@ -27,7 +27,7 @@ export const postLogin = async (
 
     const match = await bcrypt.compare(password, userData.password);
     if (!match) {
-      return res.status(401).json({ message: "Incorrect password." });
+      return res.status(403).json({ message: "Incorrect password." });
     }
 
     const token = jwt.sign(

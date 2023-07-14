@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import authRouter from "@routes/auth";
 import formRouter from "@routes/form";
 import swaggerRouter from "@routes/swagger";
+import { errorHandler } from "@middleware/error";
 
 const app = express();
 
@@ -25,7 +26,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use("/auth", authRouter);
 app.use("/form", formRouter);
 app.use("/api-docs", swaggerRouter);
-
-// TODO: create standard error handler route below to catch errors
+app.use(errorHandler);
 
 app.listen({ port: 4000 });

@@ -9,7 +9,7 @@
     "postbuild": "cp -r ./src/swagger ./dist",
     "dev": "DB=development node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "DB=production node dist/app.js"
+    "start": "NODE_ENV=production DB=production node dist/app.js"
   },
   "author": "",
   "license": "ISC",

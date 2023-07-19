@@ -1,12 +1,12 @@
 import { Router, json } from "express";
 
 import { postLogin, postRegister } from "@controllers/auth";
-import { validateLogin, validateRegister } from "@middleware/validation/auth";
+import { postLoginValidationChain, postRegisterValidationChain, isValid } from "@middleware/validation";
 
 const router = Router();
 
-router.post("/register", json(), validateRegister, postRegister);
+router.post("/login", json(), postLoginValidationChain(), isValid, postLogin);
 
-router.post("/login", json(), validateLogin, postLogin);
+router.post("/register", json(), postRegisterValidationChain(), isValid, postRegister);
 
-export default router;
+export { router as authRouter };

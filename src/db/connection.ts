@@ -3,14 +3,10 @@ import config from "@db/config";
 
 let options: Options;
 
-if (process.env.DB === "production") {
+if (process.env.NODE_ENV === "production") {
   options = config.production;
-}
-if (process.env.DB === "development") {
+} else {
   options = config.development;
-}
-if (process.env.DB === "test") {
-  options = config.test;
 }
 
 function createConnection(): Sequelize {

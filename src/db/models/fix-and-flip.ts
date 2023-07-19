@@ -22,11 +22,11 @@ export const propertyTypes = [
   "Other",
 ] as const;
 
-type PropertyType = (typeof propertyTypes)[number];
-
 export function isPropertyType(value: any): value is PropertyType {
   return propertyTypes.includes(value);
 }
+
+type PropertyType = (typeof propertyTypes)[number];
 
 export class FixAndFlip extends Model<
   InferAttributes<FixAndFlip>,
@@ -40,7 +40,7 @@ export class FixAndFlip extends Model<
   declare city: string;
   declare state: string;
   declare zip_code: string;
-  declare property_type: string | null;
+  declare property_type: PropertyType | null;
   declare num_bedrooms: number | null;
   declare num_bathrooms: number | null;
   declare square_footage: number | null;

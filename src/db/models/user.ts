@@ -26,8 +26,8 @@ class User extends Model<
 > {
   declare id: CreationOptional<number>;
   declare email: string;
-  declare username: string;
-  declare password: string;
+  declare username: CreationOptional<string>;
+  declare hashedPassword: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
@@ -57,17 +57,16 @@ User.init(
       primaryKey: true,
     },
     email: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(320), // max email address length as defined in RFC 5321
       unique: true,
       allowNull: false,
     },
     username: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(20), // limit username to 20 characters
       unique: true,
-      allowNull: false,
     },
-    password: {
-      type: DataTypes.STRING,
+    hashedPassword: {
+      type: DataTypes.STRING(60), // bcrypt resultant hash is 60 characters
       allowNull: false,
     },
     createdAt: DataTypes.DATE,

@@ -7,11 +7,12 @@
     "outDir": "dist/",
     "baseUrl": "src/",
     "paths": {
+      "@aws/*": ["./aws/*"],
       "@controllers/*": ["./controllers/*"],
       "@db/*": ["./db/*"],
+      "@jwt": ["./jwt"],
       "@middleware/*": ["./middleware/*"],
-      "@routes/*": ["./routes/*"],
-      "@aws/*": ["./aws/*"],
+      "@routes": ["./routes"],
       "@util/*": ["./util/*"]
     },
     "esModuleInterop": true,

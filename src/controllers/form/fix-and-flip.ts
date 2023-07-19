@@ -1,221 +1,205 @@
-import { Request, Response } from "express";
-import { validationResult } from "express-validator";
+import { RequestHandler } from "express";
 
 import { FixAndFlip, User } from "@db/models";
+import { BadRequestError, ForbiddenError, NotFoundError, ServerError, UnauthorizedError } from "@middleware/error";
 
-export const createFixAndFlip = async (req: Request, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.mapped() });
-  }
-
-  const userId = res.locals.userId;
-  const fixAndFlipProps = parseReqBody(req);
-
-  try {
-    const duplicateAddress = await FixAndFlip.findOne({
-      where: { street_address: fixAndFlipProps.street_address },
-    });
-    if (duplicateAddress) {
-      return res.status(400).json({
-        message:
-          "Duplicate street address. User can only have one Fix-And-Flip " +
-          "entry with the same address. Either delete the existing entry " +
-          "and retry, or edit the existing entry instead.",
-      });
-    }
-
-    const user = await User.findByPk(userId);
-
-    if (!user) {
-      return res
-        .status(401)
-        .json({ message: "User not found. Cannot create record." });
-    }
-
-    const record = await user.createFixAndFlip(fixAndFlipProps);
-
-    res.status(201).json({
-      message: "Fix And Flip form submitted successfully.",
-      record: record,
-    });
-  } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({
-        message: error.message,
-      });
-    }
-    res.status(400).json({
-      message: "There was an error submitting the Fix and Flip form.",
-    });
-  }
-};
-
-export const getFixAndFlip = async (req: Request, res: Response) => {
-  const userId = res.locals.userId;
-  const recordId = req.params.id;
+/**
+ * Create a new Fix And Flip record.
+ *
+ * @param req - Express Request
+ * @param res - Express Response
+ * @param next - Express NextFunction
+ */
+export const createFixAndFlip: RequestHandler = async (req, res, next) => {
+  let duplicateAddress;
 
   try {
-    const record = await FixAndFlip.findByPk(recordId);
-    if (!record) {
-      return res.status(404).json({ message: "Invalid recordId." });
-    }
-
-    const ownerId = record.getDataValue("UserId");
-    if (ownerId !== userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized. User is not the record owner." });
-    }
-
-    return res.status(200).json({ record: record });
-  } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({ message: error.message });
-    }
-    return res
-      .status(400)
-      .json({ message: "There was an error fetching the record." });
+    duplicateAddress = await FixAndFlip.findOne({
+      where: { street_address: req.body.street_address },
+    });
+  } catch (err) {
+    return next(new ServerError());
   }
-};
 
-export const getFixAndFlips = async (req: Request, res: Response) => {
-  const userId = res.locals.userId;
+  if (duplicateAddress) {
+    return next(new BadRequestError("Duplicate street address. User can only have one Fix-And-Flip record per address."));
+  }
+
+  let user;
 
   try {
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-    const records = await user.getFixAndFlips();
-
-    return res.status(200).json({
-      message: "Fix And Flip records fetched successfully.",
-      records: records,
-    });
-  } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({ message: error.message });
-    }
-    return res
-      .status(400)
-      .json({ message: "Failed to fetch users Fix And Flip records." });
+    user = await User.findByPk(req.session.userId);
+  } catch (err) {
+    return next(new ServerError());
   }
+
+  if (!user) {
+    return next(new UnauthorizedError());
+  }
+
+  let record;
+
+  try {
+    record = await user.createFixAndFlip(req.body);
+  } catch (err) {
+    return next(new ServerError());
+  }
+
+  const recordData = record.toJSON();
+
+  res.status(201).json({ success: true, data: recordData });
 };
 
-export const updateFixAndFlip = async (req: Request, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.mapped() });
+/**
+ * Retrieve a Fix And Flip record.
+ *
+ * @param req - Express Request
+ * @param res - Express Response
+ * @param next - Express NextFunction
+ */
+export const getFixAndFlip: RequestHandler = async (req, res, next) => {
+  let user;
+
+  try {
+    user = await User.findByPk(req.session.userId);
+  } catch (err) {
+    return next(new ServerError());
+  }
+
+  if (!user) {
+    return next(new UnauthorizedError());
   }
 
   const recordId = req.params.id;
-  const userId = res.locals.userId;
-  const fixAndFlipProps = parseReqBody(req);
+
+  let record;
 
   try {
-    const record = await FixAndFlip.findByPk(recordId);
-    if (!record) {
-      return res
-        .status(404)
-        .json({ message: "Fix And Flip record not found." });
-    }
-    const ownerId = record.getDataValue("UserId");
-    if (ownerId !== userId) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized. User is not the record owner." });
-    }
-
-    await record.update(fixAndFlipProps);
-
-    return res.status(200).json({
-      message: "Fix And Flip record updated successfully.",
-      record: record,
-    });
-  } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({ message: error.message });
-    }
-    return res
-      .status(400)
-      .json({ message: "Failed to update Fix And Flip record." });
+    record = await FixAndFlip.findByPk(recordId);
+  } catch (err) {
+    return next(new ServerError());
   }
+
+  if (!record) {
+    return next(new NotFoundError());
+  }
+
+  const recordData = record.toJSON();
+
+  if (recordData.UserId !== req.session.userId) {
+    return next(new ForbiddenError());
+  }
+
+  res.status(200).json({ success: true, data: recordData });
 };
 
-export const deleteFixAndFlip = async (req: Request, res: Response) => {
-  const recordId = req.params.id;
-  const userId = res.locals.userId;
+/**
+ * Retrieve all Fix And Flip records.
+ *
+ * @param req - Express Request
+ * @param res - Express Response
+ * @param next - Express NextFunction
+ */
+export const getFixAndFlips: RequestHandler = async (req, res, next) => {
+  let user;
 
   try {
-    const record = await FixAndFlip.findOne({ where: { id: recordId } });
-    if (!record) {
-      return res
-        .status(404)
-        .json({ message: "Fix And Flip record not found." });
-    }
+    user = await User.findByPk(req.session.userId);
+  } catch (err) {
+    return next(new ServerError());
+  }
 
-    const owner = record.getDataValue("UserId");
-    if (owner !== userId) {
-      return res
-        .status(401)
-        .json({ message: "User does not own the Fix And Flip record." });
-    }
+  if (!user) {
+    return next(new UnauthorizedError());
+  }
 
+  let records;
+
+  try {
+    records = await user.getFixAndFlips();
+  } catch (err) {
+    return next(new ServerError());
+  }
+
+  const recordsJSON = records.map(record => record.toJSON());
+
+  res.status(200).json({ success: true, data: recordsJSON });
+};
+
+/**
+ * Update a Fix And Flip record.
+ *
+ * @param req - Express Request
+ * @param res - Express Response
+ * @param next - Express NextFunction
+ */
+export const updateFixAndFlip: RequestHandler = async (req, res, next) => {
+  const recordId = req.params.id;
+  let record;
+
+  try {
+    record = await FixAndFlip.findByPk(recordId);
+  } catch (err) {
+    return next(new ServerError());
+  }
+
+  if (!record) {
+    return next(new NotFoundError());
+  }
+
+  const userId = record.getDataValue("UserId");
+
+  if (userId !== req.session.userId) {
+    return next(new ForbiddenError());
+  }
+
+  try {
+    await record.update(req.body);
+  } catch (err) {
+    return next(new ServerError());
+  }
+
+  const recordJSON = record.toJSON();
+
+  res.status(200).json({
+    success: true,
+    data: recordJSON,
+  });
+};
+
+/**
+ * Delete a Fix And Flip record.
+ *
+ * @param req - Express Request
+ * @param res - Express Response
+ * @param next - Express NextFunction
+ */
+export const deleteFixAndFlip: RequestHandler = async (req, res, next) => {
+  const recordId = req.params.id;
+  let record;
+
+  try {
+    record = await FixAndFlip.findOne({ where: { id: recordId } });
+  } catch (err) {
+    return next(new ServerError());
+  }
+
+  if (!record) {
+    return next(new NotFoundError());
+  }
+
+  if (record.UserId !== req.session.userId) {
+    return next(new ForbiddenError());
+  }
+
+  try {
     await record.destroy();
-    return res
-      .status(200)
-      .json({ message: "Fix And Flip record deleted successfully." });
-  } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({ message: error.message });
-    }
-    return res
-      .status(400)
-      .json({ message: "Fix And Flip record failed to delete." });
+  } catch (err) {
+    return next(new ServerError());
   }
-};
 
-const parseReqBody = (req: Request) => {
-  const {
-    street_address,
-    city,
-    state,
-    zip_code,
-    property_type,
-    num_bedrooms,
-    num_bathrooms,
-    square_footage,
-    year_built,
-    description,
-    after_repair_value,
-    desired_profit,
-    purchase_closing_costs,
-    repair_costs,
-    holding_costs,
-    holding_time_months,
-    agent_commission,
-    sale_closing_costs,
-  } = req.body;
-
-  return {
-    street_address,
-    city,
-    state,
-    zip_code,
-    property_type,
-    num_bedrooms,
-    num_bathrooms,
-    square_footage,
-    year_built,
-    description,
-    after_repair_value,
-    desired_profit,
-    purchase_closing_costs,
-    repair_costs,
-    holding_costs,
-    holding_time_months,
-    agent_commission,
-    sale_closing_costs,
-  };
+  res.status(200).json({
+    success: true,
+    message: "Fix And Flip record deleted.",
+  });
 };

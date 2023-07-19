@@ -1,31 +1,30 @@
 import express, { NextFunction, Request, Response } from "express";
-import cookieParser from "cookie-parser";
 
-import authRouter from "@routes/auth";
-import formRouter from "@routes/form";
-import swaggerRouter from "@routes/swagger";
+import sequelize from "@db/connection";
+import { authRouter, formRouter, swaggerRouter, userRouter } from "@routes";
+import { sessionMiddleware } from "@middleware/session";
 import { errorHandler } from "@middleware/error";
 
 const app = express();
 
-// enable cookie parser
-app.use(cookieParser());
+app.use(sessionMiddleware);
 
-// set headers for CORS, allowed methods, and Authentication tokens
+// TODO: Manually set up tables instead of sync before commit
+sequelize.sync({ force: true });
+
+// Set headers for allowed methods
 app.use((req: Request, res: Response, next: NextFunction) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   next();
 });
 
-// routers
-app.use("/auth", authRouter);
+// Routers
+app.use(authRouter);
+app.use(userRouter);
 app.use("/form", formRouter);
-app.use("/api-docs", swaggerRouter);
+app.use(swaggerRouter);
+
+// Error handling middleware
 app.use(errorHandler);
 
 app.listen({ port: 4000 });

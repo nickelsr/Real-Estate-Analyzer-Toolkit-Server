@@ -1,9 +1,9 @@
 openapi: 3.0.3
 info:
   title: Real Estate Analyzer Toolkit - OpenAPI 3.0
-  description: >-
-    This API provides JWT authenticated CRUD operations for user profiles and
-    form submissions within the Real Estate Analyzer Toolkit.
+  description: >
+    This REST API provides cookie authenticated endpoints to perform CRUD operations for user profiles and form submissions on the Real Estate
+    Analyzer Toolkit server.
   license:
     name: MIT License
     url: https://github.com/nickelsr/Real-Estate-Analyzer-Toolkit-Server/blob/main/LICENSE
@@ -16,7 +16,7 @@ tags:
     description: Real Estate Analyzation forms
 
 paths:
-  /auth/register:
+  /register:
     post:
       tags:
         - user
@@ -25,27 +25,50 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/Authenticate"
         required: true
       responses:
         201:
-          description: Successful resource creation
+          201:
+          description: User registration completed successfully.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                        min: 1
+                        max: 2147483647
+                        description: User id
+                        example: 1
+                      email:
+                        type: string
+                        description: User email
+                        example: name@example.com
+                      createdAt:
+                        type: string
+                        description: Creation date in timestamp with time zone format
+                        example: 2020-02-15T20:30:00.481Z
+                      updatedAt:
+                        type: string
+                        description: Creation date in timestamp with time zone format
+                        example: 2020-02-15T20:30:00.481Z
         400:
-          description: Failed to create resource
-        403:
-          description: Failed to create resource
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FieldValidationErrors"
+          description: Request body failed validation. Refer to validationErrors in the response body.
+          $ref: "#/components/responses/400"
+        409:
+          description: Email address in use. Choose a different email.
+          $ref: "#/components/responses/409"
       security:
         - {}
 
-  /auth/login:
+  /login:
     post:
       tags:
         - user
@@ -54,40 +77,22 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                  example: handle@example.com
-                password:
-                  type: string
-                  example: Abcdef1!
+              $ref: "#/components/schemas/Authenticate"
         required: true
       responses:
         200:
-          description: Successful login
-          content:
-            application/json:
+          description: Login successful.
+          headers:
+            Set-Cookie:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/User"
-                  - type: object
-                    properties:
-                      JWT:
-                        type: string
+                type: string
+                examples:
+                  - connect.sid=s:okwAbj13; Path=/; HttpOnly; Secure; SameSite=Strict
         400:
-          description: Failed to login. Malformed request.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FieldValidationErrors"
-        403:
-          description: Failed to login. Invalid credentials.
+          $ref: "#/components/responses/400"
         404:
-          description: Failed to login. User not found.
+          description: Invalid login credentials.
+          $ref: "#/components/responses/404"
       security:
         - {}
 
@@ -95,7 +100,7 @@ paths:
     post:
       tags:
         - form
-      description: Create Fix-And-Flip record
+      description: Create Fix-And-Flip record.
       requestBody:
         content:
           application/json:
@@ -104,17 +109,13 @@ paths:
         required: true
       responses:
         201:
-          description: Successful resource creation.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FixAndFlip"
+          description: Successfully created record.
         400:
-          description: Failed to create resource. Malformed Request
+          $ref: "#/components/responses/400"
         401:
-          description: Failed to create resource. Unauthorized.
+          $ref: "#/components/responses/401"
         404:
-          description: Failed to create resource. User not found.
+          $ref: "#/components/responses/404"
 
   /form/fix-and-flip/{id}:
     parameters:
@@ -122,28 +123,30 @@ paths:
         in: path
         required: true
         allowEmptyValue: false
+        example: 1
         schema:
           type: integer
           minimum: 1
           maximum: 2147483647
-        example: 1
     get:
       tags:
         - form
-      description: Get Fix-And-Flip record
+      description: Get Fix-And-Flip record by ID
       responses:
         200:
-          description: Successfully fetched resource.
+          description: Successfully fetched record.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/FixAndFlip"
         400:
-          description: Failed to fetch resource.
+          $ref: "#/components/responses/400"
         401:
-          description: Failed to fetch resource. Unauthorized.
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         404:
-          description: Failed to fetch resource. Record not found.
+          $ref: "#/components/responses/404"
     put:
       tags:
         - form
@@ -157,33 +160,33 @@ paths:
       responses:
         200:
           description: Successfully updated record.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FixAndFlip"
         400:
-          description: Failed to update resource. Malformed Request
+          $ref: "#/components/responses/400"
         401:
-          description: Failed to update resource. Unauthorized.
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         404:
-          description: Failed to update resource. User not found.
+          $ref: "#/components/responses/404"
     delete:
       tags:
         - form
       description: Delete Fix-And-Flip record
       responses:
         200:
-          description: Successfully deleted resource.
+          description: Successfully deleted record.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/FixAndFlip"
         400:
-          description: Failed to delete resource.
+          $ref: "#/components/responses/400"
         401:
-          description: Failed to delete resource. Unauthorized.
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         404:
-          description: Failed to delete resource. Record not found.
+          $ref: "#/components/responses/404"
 
   /form/fix-and-flips:
     get:
@@ -197,41 +200,76 @@ paths:
             application/json:
               schema:
                 type: object
-                additionalProperties:
-                  $ref: "#/components/schemas/FixAndFlip"
-        400:
-          description: Failed to fetch resource.
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FixAndFlip"
         401:
-          description: Failed to fetch resource. Unauthorized.
-        404:
-          description: Failed to fetch resource. Record not found.
+          $ref: "#/components/responses/401"
+
 components:
   schemas:
-    User:
+    Authenticate:
+      description: Registration and Login fields
       type: object
       required:
-        - username
-        - password
         - email
+        - password
       properties:
-        id:
-          type: integer
-          minimum: 1
-          maximum: 2147483647
-          example: 51
-          readOnly: true
-        username:
-          type: string
-          example: SomeName
-        password:
-          type: string
-          example: Abcdef1!
-          writeOnly: true
         email:
+          description: A valid email address
           type: string
-          example: handle@example.com
+          example: name@example.com
+        password:
+          description: >
+            A password at least 8 characters long, containing at least one lowercase letter, uppercase letter, number, and special character
+          type: string
+          example: Password1!
+
+    ResponseBody:
+      description: Json response body.
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+
+    ValidationErrors:
+      description: request inputs that failed validation
+      type: object
+      properties:
+        field:
+          type: string
+        reason:
+          type: string
+    Error:
+      description: Error response.
+      type: object
+      properties:
+        message:
+          description: A summary of the problem.
+          type: string
+          example: Your request failed validation.
+        validationErrors:
+          description: >
+            An array of request parameters and body fields that failed validation.
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                description: Name of the field.
+                type: string
+                example: street_address
+              reason:
+                description: Summary of the reason for failure.
+                type: string
+                example: Must be non-empty.
 
     FixAndFlip:
+      description: Fix And Flip form fields
       type: object
       required:
         - street_address
@@ -254,16 +292,16 @@ components:
           readOnly: true
         street_address:
           type: string
-          example: "555 Place Rd."
+          example: 555 Place Rd.
         city:
           type: string
-          example: "San Francisco"
+          example: San Francisco
         state:
           type: string
-          example: "CA"
+          example: CA
         zip_code:
           type: string
-          example: "12345"
+          example: 12345
         property_type:
           type: string
           enum:
@@ -344,37 +382,61 @@ components:
           type: string
           readOnly: true
 
-    FieldValidationErrors:
-      type: object
-      additionalProperties:
-        type: object
-        properties:
-          type:
+  responses:
+    "200":
+      description: Success.
+      content:
+        text/plain:
+          schema:
             type: string
-            enum:
-              - field
-          msg:
+            example: OK
+    "201":
+      description: Success.
+      content:
+        text/plain:
+          schema:
             type: string
-            description: Error message
-            example: Must be a valid email
-          path:
+            example: Created
+    "400":
+      description: Failed request validation.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "401":
+      description: Failed Authentication. Log in and retry.
+      content:
+        text/plain:
+          schema:
             type: string
-            description: Name of property responsible for failed validation
-            example: email
-          location:
+            example: Unauthorized
+    "403":
+      description: Forbidden. User does not have access to this resource.
+      content:
+        text/plain:
+          schema:
             type: string
-            enum:
-              - body
-              - cookies
-              - headers
-              - params
-              - query
+            example: Forbidden
+    "404":
+      description: Not Found.
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Not Found
+    "409":
+      description: Conflict.
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Conflict
 
   securitySchemes:
-    JWT_Bearer:
-      type: "http"
-      scheme: "bearer"
-      bearerFormat: "JWT"
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: id
 
 security:
-  - JWT_Bearer: []
+  - cookieAuth: []

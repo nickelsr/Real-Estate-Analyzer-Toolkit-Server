@@ -10,15 +10,12 @@ const router = Router();
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const file = readFileSync(
-  resolve(__dirname, "../swagger/swagger.yaml"),
-  "utf-8"
-);
+const file = readFileSync(resolve(__dirname, "../swagger/swagger.yaml"), "utf-8");
 
 const swaggerSpec = parse(file);
 
-router.use("/", swaggerUI.serve);
+router.use("/api-docs", swaggerUI.serve);
 
-router.get("/", swaggerUI.setup(swaggerSpec));
+router.get("/api-docs", swaggerUI.setup(swaggerSpec));
 
-export default router;
+export { router as swaggerRouter };

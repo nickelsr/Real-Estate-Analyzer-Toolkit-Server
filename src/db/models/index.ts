@@ -8,18 +8,18 @@ import User from "./user";
  * Creates tables in database if they don't exist based on defined models.
  */
 async function syncTables(conn: Sequelize) {
-  await conn.sync({ force: true });
+  try {
+    await conn.sync({ force: true });
+  } catch (err) {
+    throw new Error("Error syncing database tables.", { cause: err });
+  }
 }
 
 // Define Sequelize table associations
-User.hasMany(FixAndFlip, {
-  sourceKey: "id",
-  foreignKey: "UserId",
-  as: "fixAndFlips",
-});
+User.hasMany(FixAndFlip);
 FixAndFlip.belongsTo(User);
 
-syncTables(sequelize);
+await syncTables(sequelize);
 
 export { FixAndFlip, User };
 export { propertyTypes, isPropertyType } from "./fix-and-flip";

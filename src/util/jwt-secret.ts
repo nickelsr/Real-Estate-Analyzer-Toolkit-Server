@@ -1,11 +1,19 @@
+// TODO: update key name in SSM and reflect change here
+
 import useGetParameter from "@aws/ssm/useGetParameter";
 
-let jwtSecretKey: string;
+const fetchPrivateKey = async (): Promise<string> => {
+  let privateKey = "dev";
 
-if (process.env.DB === "production") {
-  jwtSecretKey = await useGetParameter("JWT_SIGNING_KEY");
-} else {
-  jwtSecretKey = "dev";
-}
+  if (process.env.NODE_ENV === "production") {
+    try {
+      privateKey = await useGetParameter("JWT_SIGNING_KEY");
+    } catch (err) {
+      throw new Error("Error fetching private key", { cause: err });
+    }
+  }
 
-export { jwtSecretKey };
+  return privateKey;
+};
+
+export const privateKey = await fetchPrivateKey();

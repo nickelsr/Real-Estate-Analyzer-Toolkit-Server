@@ -1,30 +1,19 @@
 import { Router, json } from "express";
 
-import {
-  deleteFixAndFlip,
-  getFixAndFlip,
-  getFixAndFlips,
-  createFixAndFlip,
-  updateFixAndFlip,
-} from "@controllers/form";
-import { fixAndFlipValidate } from "@middleware/validation/form";
-import isAuth from "@middleware/auth/is-auth";
+import { deleteFixAndFlip, getFixAndFlip, getFixAndFlips, createFixAndFlip, updateFixAndFlip } from "@controllers/form";
+import { deleteFixAndFlipRules, getFixAndFlipRules, postFixAndFlipRules, putFixAndFlipRules, isValid } from "@middleware/validation";
+import { isAuth } from "@middleware/auth";
 
 const router = Router();
 
-router.all("*", isAuth);
+router.get("/fix-and-flip/:id", isAuth, getFixAndFlipRules(), isValid, getFixAndFlip);
 
-router.post("*", json(), fixAndFlipValidate());
-router.put("*", json(), fixAndFlipValidate());
+router.put("/fix-and-flip/:id", isAuth, json(), putFixAndFlipRules(), isValid, updateFixAndFlip);
 
-router.get("/fix-and-flip/:id", getFixAndFlip);
+router.delete("/fix-and-flip/:id", isAuth, deleteFixAndFlipRules(), isValid, deleteFixAndFlip);
 
-router.get("/fix-and-flips/", getFixAndFlips);
+router.post("/fix-and-flip", isAuth, json(), postFixAndFlipRules(), isValid, createFixAndFlip);
 
-router.post("/fix-and-flip", createFixAndFlip);
+router.get("/fix-and-flips/", isAuth, getFixAndFlips);
 
-router.put("/fix-and-flip/:id", updateFixAndFlip);
-
-router.delete("/fix-and-flip/:id", deleteFixAndFlip);
-
-export default router;
+export { router as formRouter };

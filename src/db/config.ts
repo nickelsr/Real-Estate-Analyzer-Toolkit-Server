@@ -55,7 +55,7 @@ async function getParams(names: ParamNames): Promise<ConnectionParams> {
 
 let production: Options = {};
 let PROD: ConnectionParams;
-if (process.env.DB === "production") {
+if (process.env.NODE_ENV === "production") {
   PROD = await getParams({
     host: "DB_PROD_HOST",
     port: "DB_PROD_PORT",
@@ -79,13 +79,7 @@ const development: Options = {
   storage: "database.sqlite",
 };
 
-const test: Options = {
-  dialect: "sqlite",
-  storage: "database.sqlite",
-};
-
 export default {
   production,
   development,
-  test,
 };

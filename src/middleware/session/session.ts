@@ -18,8 +18,7 @@ export const sessionMiddleware = session({
     httpOnly: true,
     sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
-    domain: process.env.NODE_ENV === "production" ? "analyzetk" : "localhost",
-    path: process.env.NODE_ENV === "production" ? "/api/" : "/",
+    domain: process.env.NODE_ENV === "production" ? "analyzetk.com" : "localhost",
     maxAge: 1000 * 60 * 60 * 24 * 30, // ms * sec * min * hr * days. 30 days total
   },
   resave: false,

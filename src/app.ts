@@ -7,6 +7,7 @@ import { errorHandler } from "@middleware/error";
 
 const app = express();
 
+app.set("trust proxy", 1);
 app.use(sessionMiddleware);
 
 // TODO: Manually set up tables instead of sync before commit

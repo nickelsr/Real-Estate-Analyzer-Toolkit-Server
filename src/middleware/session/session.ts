@@ -17,7 +17,7 @@ export const sessionMiddleware = session({
   cookie: {
     httpOnly: true,
     sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     domain: process.env.NODE_ENV === "production" ? "analyzetk.com" : "localhost",
     maxAge: 1000 * 60 * 60 * 24 * 30, // ms * sec * min * hr * days. 30 days total
   },
